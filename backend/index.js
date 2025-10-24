@@ -12,6 +12,8 @@ app.post("/resume", personalDataController.createForm());
 app.post("/resumes", personalDataController.createForm());
 app.get("/resumes", personalDataController.listForms());
 app.get("/resumes/:id", personalDataController.getForm());
+app.put("/resumes/:id", personalDataController.updateForm());
+app.delete("/resumes/:id", personalDataController.deleteForm());
 
 const PORT = 3000;
 app.listen(PORT, '0.0.0.0', () => {

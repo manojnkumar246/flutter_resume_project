@@ -64,4 +64,53 @@ function getForm() {
   };
 }
 
-export default { createForm, listForms, getForm };
+function updateForm() {
+  return async (req, res) => {
+    try {
+      const { id } = req.params;
+      const payload = req.body;
+
+      if (!payload || !payload.name) {
+        return res.status(400).json({ error: "Form must include a name field." });
+      }
+
+      const record = await redisClient.hGet("resumes", id);
+      if (!record) {
+        return res.status(404).json({ error: "Form not found." });
+      }
+
+      const updatedForm = {
+        ...JSON.parse(record),
+        ...payload,
+        updatedAt: new Date().toISOString(),
+      };
+
+      await redisClient.hSet("resumes", id, JSON.stringify(updatedForm));
+      res.status(200).json({ id, updatedAt: updatedForm.updatedAt });
+    } catch (err) {
+      console.error("Error updating form:", err);
+      res.status(500).json({ error: "Failed to update form." });
+    }
+  };
+}
+
+function deleteForm() {
+  return async (req, res) => {
+    try {
+      const { id } = req.params;
+      const exists = await redisClient.hExists("resumes", id);
+
+      if (!exists) {
+        return res.status(404).json({ error: "Form not found." });
+      }
+
+      await redisClient.hDel("resumes", id);
+      res.status(200).json({ message: "Form deleted successfully." });
+    } catch (err) {
+      console.error("Error deleting form:", err);
+      res.status(500).json({ error: "Failed to delete form." });
+    }
+  };
+}
+
+export default { createForm, listForms, getForm, updateForm, deleteForm };
