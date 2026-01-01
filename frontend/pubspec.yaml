@@ -9,13 +9,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  # Network calls
   http: ^1.2.0
+  
+  # Animations
   animate_do: ^2.0.0
+  
+  # Date formatting
+  intl: ^0.18.0 
+  
+  # --- NEW: For Photo Upload ---
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
-
+  flutter_lints: ^3.0.0 
+  
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/images/
