@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import redisClient from "../config/redisClient.js";
 import mailer from "../config/mailer.js";
 
-const ADMIN_EMAIL = "gowtham.b1711@gmail.com";
+const ADMIN_EMAIL = "sandakamanoj355@gmail.com";
 
 const LEAVES_KEY = "leaves";
 
@@ -45,7 +45,7 @@ async function createLeave(req, res) {
     const approveLink = `${baseUrl}/leaves/approve/${id}`;
     const denyLink = `${baseUrl}/leaves/deny/${id}`;
 
-    const detailsHtml = `
+    const detailsHtmlForAdmin = `
       <h3>Leave Request</h3>
       <p><strong>Employee:</strong> ${leaveDoc.employeeName} (${leaveDoc.employeeId || 'N/A'})</p>
       <p><strong>Email:</strong> ${leaveDoc.employeeEmail}</p>
@@ -58,6 +58,15 @@ async function createLeave(req, res) {
       </p>
     `;
 
+    const detailsHtmlForEmployee = `
+      <h3>Leave Request Details</h3>
+      <p><strong>Employee:</strong> ${leaveDoc.employeeName} (${leaveDoc.employeeId || 'N/A'})</p>
+      <p><strong>Email:</strong> ${leaveDoc.employeeEmail}</p>
+      <p><strong>Type:</strong> ${leaveDoc.leaveType}</p>
+      <p><strong>Dates:</strong> ${leaveDoc.startDate} to ${leaveDoc.endDate}</p>
+      <p><strong>Reason:</strong> ${leaveDoc.reason || ''}</p>
+    `;
+
     // Send email to admin (and cc employee)
     // NOTE: For emails to be sent, you must configure the environment variables
     // as described in /config/mailer.js. Otherwise, it will default to a 
@@ -66,13 +75,13 @@ async function createLeave(req, res) {
       await mailer.sendMail({
         to: ADMIN_EMAIL,
         subject: `New Leave Request from ${leaveDoc.employeeName}`,
-        html: detailsHtml,
+        html: detailsHtmlForAdmin,
       });
       // Also send a confirmation to employee
       await mailer.sendMail({
         to: leaveDoc.employeeEmail,
         subject: `Leave Request Received (${leaveDoc.leaveType})`,
-        html: `<p>Hi ${leaveDoc.employeeName},</p><p>Your leave request has been received and is pending review.</p>${detailsHtml}`,
+        html: `<p>Hi ${leaveDoc.employeeName},</p><p>Your leave request has been received and is pending review.</p>${detailsHtmlForEmployee}`,
       });
     } catch (mailErr) {
       console.error('Error sending notification emails:', mailErr);
@@ -89,18 +98,20 @@ async function createLeave(req, res) {
 async function listLeaves(req, res) {
   try {
     const leaves = await redisClient.hGetAll(LEAVES_KEY);
-    const result = Object.values(leaves).map((l) => {
-      const data = JSON.parse(l);
-      return {
-        id: data.id,
-        employeeName: data.employeeName || "Unnamed",
-        leaveType: data.leaveType,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        status: data.status,
-        createdAt: data.createdAt,
-      };
-    });
+    const result = Object.values(leaves)
+      .map((l) => {
+        const data = JSON.parse(l);
+        return {
+          id: data.id,
+          employeeName: data.employeeName || "Unnamed",
+          leaveType: data.leaveType,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          status: data.status,
+          createdAt: data.createdAt,
+        };
+      })
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     res.json(result);
   } catch (err) {
     console.error("Error listing leaves:", err);

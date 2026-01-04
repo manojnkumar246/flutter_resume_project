@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // --- CONFIGURATION ---
-const String kBackendBase = 'http://10.26.189.165:3000';
+const String kBackendBase = 'http://192.168.55.105:3000';
 
 // --- VALIDATORS ---
 class Validators {

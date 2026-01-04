@@ -67,6 +67,51 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
     }
   }
 
+  Future<void> _deleteLeave(String id) async {
+    // Show confirmation dialog
+    final bool confirm = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Confirm Deletion'),
+            content: const Text('Are you sure you want to delete this leave request?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Delete', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!confirm) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text('Deleting request...'),
+          duration: Duration(milliseconds: 800)),
+    );
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$kBackendBase/leaves/$id'),
+      );
+
+      if (response.statusCode == 200) {
+        _showSnackBar('Request Deleted!', Colors.green);
+        _fetchLeaves(); // Refresh the list
+      } else {
+        _showSnackBar('Server Error: ${response.body}', Colors.red);
+      }
+    } catch (e) {
+      _showSnackBar('Network Error: $e', Colors.red);
+    }
+  }
+
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: color),
@@ -152,6 +197,10 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
                                     ),
                                     _buildStatusChip(
                                         leave['status'] ?? 'pending'),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () => _deleteLeave(leave['id']),
+                                    ),
                                   ],
                                 ),
                                 const Divider(height: 16),

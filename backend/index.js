@@ -21,6 +21,7 @@ app.post("/leaves", leaveController.createLeave);           // Removed /api
 app.get("/leaves", leaveController.listLeaves);             // Removed /api
 app.get("/leaves/:id", leaveController.getLeave);           // Removed /api
 app.put("/leaves/:id", leaveController.updateLeave);
+app.delete("/leaves/:id", leaveController.deleteLeave);
 
 
 const PORT = 3000;
