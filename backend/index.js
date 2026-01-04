@@ -20,8 +20,8 @@ app.delete("/resumes/:id", personalDataController.deleteForm);
 app.post("/leaves", leaveController.createLeave);           // Removed /api
 app.get("/leaves", leaveController.listLeaves);             // Removed /api
 app.get("/leaves/:id", leaveController.getLeave);           // Removed /api
-app.get("/leaves/approve/:id", leaveController.approveLeave); // Removed /api
-app.get("/leaves/deny/:id", leaveController.denyLeave);       // Removed /api
+app.put("/leaves/:id", leaveController.updateLeave);
+
 
 const PORT = 3000;
 app.listen(PORT, '0.0.0.0', () => {

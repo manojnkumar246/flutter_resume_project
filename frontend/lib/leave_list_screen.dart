@@ -22,6 +22,7 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
   }
 
   Future<void> _fetchLeaves() async {
+    setState(() => _isLoading = true);
     try {
       final response = await http.get(Uri.parse('$kBackendBase/leaves'));
       if (response.statusCode == 200) {
@@ -30,34 +31,46 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
           _isLoading = false;
         });
       } else {
-        // Handle error
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
+        _showSnackBar(
+            'Failed to load leaves: ${response.statusCode}', Colors.red);
       }
     } catch (e) {
-      // Handle error
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
+      _showSnackBar('Connection Error: $e', Colors.red);
     }
   }
 
   Future<void> _updateLeaveStatus(String id, String status) async {
+    // Show loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text('Marking as $status...'),
+          duration: const Duration(milliseconds: 800)),
+    );
+
     try {
       final response = await http.put(
         Uri.parse('$kBackendBase/leaves/$id'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'status': status}),
       );
+
       if (response.statusCode == 200) {
-        _fetchLeaves(); // Refresh the list
+        _showSnackBar('Request Marked as $status!', Colors.green);
+        _fetchLeaves(); // Refresh the list automatically
       } else {
-        // Handle error
+        _showSnackBar('Server Error: ${response.body}', Colors.red);
       }
     } catch (e) {
-      // Handle error
+      _showSnackBar('Network Error: $e', Colors.red);
     }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: color),
+    );
   }
 
   Widget _buildStatusChip(String status) {
@@ -77,7 +90,9 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
         label = 'PENDING';
     }
     return Chip(
-      label: Text(label, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+      label: Text(label,
+          style: const TextStyle(
+              color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
       backgroundColor: color,
       padding: const EdgeInsets.symmetric(horizontal: 8),
     );
@@ -104,6 +119,9 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
                       itemCount: _leaves.length,
                       itemBuilder: (context, index) {
                         final leave = _leaves[index];
+                        // Reverse the list to show newest first if backend doesn't sort
+                        // or just use index as is.
+
                         final isPending = leave['status'] == 'pending';
 
                         return Card(
@@ -111,7 +129,8 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
                           elevation: 2,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4),
-                            side: const BorderSide(color: Colors.black54, width: 0.5),
+                            side: const BorderSide(
+                                color: Colors.black54, width: 0.5),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
@@ -119,34 +138,55 @@ class _LeaveListScreenState extends State<LeaveListScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      leave['employeeName'] ?? 'No Name',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    Expanded(
+                                      child: Text(
+                                        leave['employeeName'] ?? 'No Name',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                    _buildStatusChip(leave['status'] ?? 'pending'),
+                                    _buildStatusChip(
+                                        leave['status'] ?? 'pending'),
                                   ],
                                 ),
                                 const Divider(height: 16),
                                 Text('Type: ${leave['leaveType']}'),
                                 const SizedBox(height: 4),
-                                Text('Dates: ${leave['startDate']} to ${leave['endDate']}'),
+                                Text(
+                                    'Dates: ${leave['startDate']} to ${leave['endDate']}'),
+                                const SizedBox(height: 4),
+                                Text('Reason: ${leave['reason'] ?? "None"}',
+                                    style: const TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.grey)),
                                 const SizedBox(height: 8),
                                 if (isPending)
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       TextButton.icon(
-                                        icon: const Icon(Icons.check_circle, color: Colors.green),
-                                        label: const Text('Approve', style: TextStyle(color: Colors.green)),
-                                        onPressed: () => _updateLeaveStatus(leave['id'], 'approved'),
+                                        icon: const Icon(Icons.check_circle,
+                                            color: Colors.green),
+                                        label: const Text('Approve',
+                                            style:
+                                                TextStyle(color: Colors.green)),
+                                        onPressed: () => _updateLeaveStatus(
+                                            leave['id'], 'approved'),
                                       ),
                                       const SizedBox(width: 8),
                                       TextButton.icon(
-                                        icon: const Icon(Icons.cancel, color: Colors.red),
-                                        label: const Text('Deny', style: TextStyle(color: Colors.red)),
-                                        onPressed: () => _updateLeaveStatus(leave['id'], 'denied'),
+                                        icon: const Icon(Icons.cancel,
+                                            color: Colors.red),
+                                        label: const Text('Deny',
+                                            style:
+                                                TextStyle(color: Colors.red)),
+                                        onPressed: () => _updateLeaveStatus(
+                                            leave['id'], 'denied'),
                                       ),
                                     ],
                                   )

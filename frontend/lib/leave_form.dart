@@ -20,17 +20,23 @@ class _LeaveFormScreenState extends State<LeaveFormScreen> {
   // Controllers
   final _employeeNameCtrl = TextEditingController();
   final _employeeIdCtrl = TextEditingController();
+  final _employeeEmailCtrl = TextEditingController();
   final _startDateCtrl = TextEditingController();
   final _endDateCtrl = TextEditingController();
   final _reasonCtrl = TextEditingController();
   String? _leaveType;
 
-  final List<String> _leaveTypes = ['Casual Leave', 'Sick Leave', 'Earned Leave'];
+  final List<String> _leaveTypes = [
+    'Casual Leave',
+    'Sick Leave',
+    'Earned Leave'
+  ];
 
   @override
   void dispose() {
     _employeeNameCtrl.dispose();
     _employeeIdCtrl.dispose();
+    _employeeEmailCtrl.dispose();
     _startDateCtrl.dispose();
     _endDateCtrl.dispose();
     _reasonCtrl.dispose();
@@ -40,7 +46,9 @@ class _LeaveFormScreenState extends State<LeaveFormScreen> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fix the errors in the form.'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Please fix the errors in the form.'),
+            backgroundColor: Colors.red),
       );
       return;
     }
@@ -53,6 +61,7 @@ class _LeaveFormScreenState extends State<LeaveFormScreen> {
     final data = {
       'employeeName': _employeeNameCtrl.text,
       'employeeId': _employeeIdCtrl.text,
+      'employeeEmail': _employeeEmailCtrl.text,
       'leaveType': _leaveType,
       'startDate': _startDateCtrl.text,
       'endDate': _endDateCtrl.text,
@@ -95,7 +104,8 @@ class _LeaveFormScreenState extends State<LeaveFormScreen> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -130,23 +140,40 @@ class _LeaveFormScreenState extends State<LeaveFormScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('Submit a Leave Request', style: Theme.of(context).textTheme.headlineSmall),
+                      Text('Submit a Leave Request',
+                          style: Theme.of(context).textTheme.headlineSmall),
                       const SizedBox(height: 24),
                       TextFormField(
                         controller: _employeeNameCtrl,
-                        decoration: const InputDecoration(labelText: 'Employee Name'),
+                        decoration:
+                            const InputDecoration(labelText: 'Employee Name'),
                         validator: Validators.required,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
+                        controller: _employeeEmailCtrl,
+                        decoration:
+                            const InputDecoration(labelText: 'Employee Email'),
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: [AutofillHints.email],
+                        validator: (v) {
+                          final r = Validators.required(v);
+                          if (r != null) return r;
+                          return Validators.email(v);
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
                         controller: _employeeIdCtrl,
-                        decoration: const InputDecoration(labelText: 'Employee ID'),
+                        decoration:
+                            const InputDecoration(labelText: 'Employee ID'),
                         validator: Validators.required,
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
                         value: _leaveType,
-                        decoration: const InputDecoration(labelText: 'Leave Type'),
+                        decoration:
+                            const InputDecoration(labelText: 'Leave Type'),
                         items: _leaveTypes.map((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
@@ -158,7 +185,8 @@ class _LeaveFormScreenState extends State<LeaveFormScreen> {
                             _leaveType = newValue;
                           });
                         },
-                        validator: (value) => value == null ? 'Please select a leave type' : null,
+                        validator: (value) =>
+                            value == null ? 'Please select a leave type' : null,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -207,7 +235,9 @@ class _LeaveFormScreenState extends State<LeaveFormScreen> {
                             _resultMessage,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: _resultMessage.startsWith('Error') ? Colors.red : Colors.green,
+                              color: _resultMessage.startsWith('Error')
+                                  ? Colors.red
+                                  : Colors.green,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
