@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'home_screen.dart';
+import 'employee_login_screen.dart';
 
 void main() => runApp(const PersonalDataApp());
 
@@ -67,7 +67,7 @@ class PersonalDataApp extends StatelessWidget {
           iconTheme: IconThemeData(color: Colors.black, size: 22),
         ),
       ),
-      home: const HomeScreen(),
+      home: const EmployeeLoginScreen(),
     );
   }
 }

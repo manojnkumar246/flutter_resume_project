@@ -1,93 +1,66 @@
 import { v4 as uuidv4 } from "uuid";
 import redisClient from "../config/redisClient.js";
 
-// Create a new resume
+const FORMS_KEY = "resumes";
+
 async function createForm(req, res) {
   try {
-    const payload = req.body;
-    if (!payload || !payload.name) {
-      return res.status(400).json({ error: "Form must include a name field." });
-    }
-
     const id = uuidv4();
-    const timestamp = new Date().toISOString();
-    const formDoc = { id, createdAt: timestamp, ...payload };
-
-    // Save to Redis hash "resumes" with field = id
-    await redisClient.hSet("resumes", id, JSON.stringify(formDoc));
-
-    res.status(201).json({ id, createdAt: timestamp });
-  } catch (err) {
-    console.error("Error saving form:", err);
-    res.status(500).json({ error: "Failed to save form." });
+    const doc = { id, createdAt: new Date().toISOString(), ...req.body };
+    await redisClient.hSet(FORMS_KEY, id, JSON.stringify(doc));
+    res.status(201).json({ id });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create form." });
   }
 }
 
-// List all resumes
 async function listForms(req, res) {
   try {
-    const resumes = await redisClient.hGetAll("resumes");
-    const result = Object.values(resumes).map((r) => {
-      const data = JSON.parse(r);
-      return {
-        id: data.id,
-        name: data.name || "Unnamed",
-        createdAt: data.createdAt,
-      };
-    });
-    res.json(result);
-  } catch (err) {
-    console.error("Error listing forms:", err);
-    res.status(500).json({ error: "Failed to list forms." });
+    const forms = await redisClient.hGetAll(FORMS_KEY);
+    res.json(Object.values(forms).map((f) => JSON.parse(f)));
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve forms." });
   }
 }
 
-// Get a single resume by ID
 async function getForm(req, res) {
   try {
     const { id } = req.params;
-    const record = await redisClient.hGet("resumes", id);
-
-    if (!record) return res.status(404).json({ error: "Form not found." });
-
-    res.setHeader("Content-Type", "application/json");
-    res.send(record);
-  } catch (err) {
-    console.error("Error reading form:", err);
-    res.status(500).json({ error: "Failed to read form." });
+    const form = await redisClient.hGet(FORMS_KEY, id);
+    if (form) {
+      res.json(JSON.parse(form));
+    } else {
+      res.status(404).json({ error: "Form not found." });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve form." });
   }
 }
 
-// Update an existing resume by ID
 async function updateForm(req, res) {
   try {
     const { id } = req.params;
-    const exists = await redisClient.hExists("resumes", id);
-    if (!exists) return res.status(404).json({ error: "Form not found." });
+    const formString = await redisClient.hGet(FORMS_KEY, id);
+    if (!formString) {
+      return res.status(404).json({ error: "Form not found." });
+    }
 
-    const payload = req.body;
-    const timestamp = new Date().toISOString();
-    const updatedDoc = { id, updatedAt: timestamp, ...payload };
+    const form = JSON.parse(formString);
+    const updatedForm = { ...form, ...req.body };
 
-    await redisClient.hSet("resumes", id, JSON.stringify(updatedDoc));
-
-    res.json({ message: "Resume updated successfully", updatedAt: timestamp });
-  } catch (err) {
-    console.error("Error updating form:", err);
+    await redisClient.hSet(FORMS_KEY, id, JSON.stringify(updatedForm));
+    res.json(updatedForm);
+  } catch (error) {
     res.status(500).json({ error: "Failed to update form." });
   }
 }
 
-// Delete a resume by ID
 async function deleteForm(req, res) {
   try {
     const { id } = req.params;
-    const deleted = await redisClient.hDel("resumes", id);
-    if (!deleted) return res.status(404).json({ error: "Form not found." });
-
-    res.json({ message: "Resume deleted successfully" });
-  } catch (err) {
-    console.error("Error deleting form:", err);
+    await redisClient.hDel(FORMS_KEY, id);
+    res.status(204).send();
+  } catch (error) {
     res.status(500).json({ error: "Failed to delete form." });
   }
 }

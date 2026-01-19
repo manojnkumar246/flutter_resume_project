@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'utils.dart';
 import 'resume_list_screen.dart';
 import 'leave_list_screen.dart';
+import 'profile_change_requests_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -22,14 +23,30 @@ class AdminDashboardScreen extends StatelessWidget {
                   context,
                   icon: Icons.people,
                   label: 'Manage Personal Data',
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ResumeListScreen())),
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const ResumeListScreen())),
                 ),
                 const SizedBox(height: 20),
                 _buildDashboardButton(
                   context,
                   icon: Icons.event_note,
                   label: 'Manage Leave Applications',
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LeaveListScreen())),
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const LeaveListScreen())),
+                ),
+                const SizedBox(height: 20),
+                _buildDashboardButton(
+                  context,
+                  icon: Icons.edit_document,
+                  label: 'Profile Change Requests',
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const ProfileChangeRequestsScreen())),
                 ),
               ],
             ),
@@ -39,7 +56,10 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDashboardButton(BuildContext context, {required IconData icon, required String label, required VoidCallback onPressed}) {
+  Widget _buildDashboardButton(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required VoidCallback onPressed}) {
     return SizedBox(
       width: 300,
       child: ElevatedButton.icon(

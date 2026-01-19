@@ -155,7 +155,7 @@ class _LeaveFormScreenState extends State<LeaveFormScreen> {
                         decoration:
                             const InputDecoration(labelText: 'Employee Email'),
                         keyboardType: TextInputType.emailAddress,
-                        autofillHints: [AutofillHints.email],
+                        autofillHints: const [AutofillHints.email],
                         validator: (v) {
                           final r = Validators.required(v);
                           if (r != null) return r;
@@ -171,7 +171,7 @@ class _LeaveFormScreenState extends State<LeaveFormScreen> {
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        value: _leaveType,
+                        initialValue: _leaveType,
                         decoration:
                             const InputDecoration(labelText: 'Leave Type'),
                         items: _leaveTypes.map((String value) {

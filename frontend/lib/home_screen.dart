@@ -4,6 +4,7 @@ import 'utils.dart';
 import 'personal_data_form.dart';
 import 'login_screen.dart';
 import 'leave_form.dart';
+import 'employee_login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -33,7 +34,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 40),
                     const Text(
-                      'Welcome to the Employee Portal',
+                      'Welcome to the HR Portal',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 20,
@@ -45,21 +46,34 @@ class HomeScreen extends StatelessWidget {
                     _buildMenuButton(
                       context,
                       icon: Icons.person,
-                      label: 'Personal Data Form',
+                      label: 'Employee Portal',
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const PersonalDataForm()),
+                        MaterialPageRoute(
+                            builder: (_) => const EmployeeLoginScreen()),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildMenuButton(
+                      context,
+                      icon: Icons.person_add,
+                      label: 'Personal Data Form (Guest)',
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const PersonalDataForm()),
                       ),
                     ),
                     const SizedBox(height: 20),
                     _buildMenuButton(
                       context,
                       icon: Icons.calendar_today,
-                      label: 'Leave Application Form',
+                      label: 'Leave Application (Guest)',
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const LeaveFormScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const LeaveFormScreen()),
                         );
                       },
                     ),
@@ -67,10 +81,12 @@ class HomeScreen extends StatelessWidget {
                     const Divider(),
                     const SizedBox(height: 20),
                     TextButton.icon(
-                      icon: const Icon(Icons.admin_panel_settings, color: Colors.black54),
+                      icon: const Icon(Icons.admin_panel_settings,
+                          color: Colors.black54),
                       label: const Text(
                         'Admin Login',
-                        style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.black54, fontWeight: FontWeight.bold),
                       ),
                       onPressed: () => Navigator.push(
                         context,
@@ -87,7 +103,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuButton(BuildContext context, {required IconData icon, required String label, required VoidCallback onPressed}) {
+  Widget _buildMenuButton(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required VoidCallback onPressed}) {
     return ElevatedButton.icon(
       icon: Icon(icon, size: 24),
       label: Text(label),
@@ -99,9 +118,9 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
       ).copyWith(
-        backgroundColor: MaterialStateProperty.all(Colors.white.withOpacity(0.9)),
-        foregroundColor: MaterialStateProperty.all(Colors.black),
-        elevation: MaterialStateProperty.all(4),
+        backgroundColor: WidgetStateProperty.all(Colors.white.withOpacity(0.9)),
+        foregroundColor: WidgetStateProperty.all(Colors.black),
+        elevation: WidgetStateProperty.all(4),
       ),
     );
   }

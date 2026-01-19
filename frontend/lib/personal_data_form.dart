@@ -68,8 +68,12 @@ class _PersonalDataFormState extends State<PersonalDataForm> {
 
   @override
   void dispose() {
-    for (var c in _ctrls.values) c.dispose();
-    for (var f in _focusNodes.values) f.dispose();
+    for (var c in _ctrls.values) {
+      c.dispose();
+    }
+    for (var f in _focusNodes.values) {
+      f.dispose();
+    }
     super.dispose();
   }
 
@@ -97,7 +101,9 @@ class _PersonalDataFormState extends State<PersonalDataForm> {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         setState(() {
-          for (var k in _ctrls.keys) _ctrls[k]!.text = data[k] ?? '';
+          for (var k in _ctrls.keys) {
+            _ctrls[k]!.text = data[k] ?? '';
+          }
           _maritalStatus = data['maritalStatus'] ?? '';
           if (data['photoBase64'] != null && data['photoBase64'].isNotEmpty) {
             try {
@@ -107,9 +113,10 @@ class _PersonalDataFormState extends State<PersonalDataForm> {
         });
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
   }
 
@@ -144,7 +151,9 @@ class _PersonalDataFormState extends State<PersonalDataForm> {
         setState(() => _resultMessage = "Saved Successfully!");
         if (widget.resumeId == null) {
           _formKey.currentState!.reset();
-          for (var c in _ctrls.values) c.clear();
+          for (var c in _ctrls.values) {
+            c.clear();
+          }
           _maritalStatus = '';
           _selectedImageBytes = null;
           // Refocus on top
@@ -231,7 +240,7 @@ class _PersonalDataFormState extends State<PersonalDataForm> {
       child: SizedBox(
         height: 42,
         child: DropdownButtonFormField<String>(
-          value:
+          initialValue:
               maritalOptions.contains(_maritalStatus) ? _maritalStatus : null,
           focusNode: _focusNodes[key],
           style: const TextStyle(fontSize: 13, color: Colors.black),
@@ -597,7 +606,9 @@ class _PersonalDataFormState extends State<PersonalDataForm> {
                                   OutlinedButton(
                                     onPressed: () {
                                       _formKey.currentState!.reset();
-                                      for (var c in _ctrls.values) c.clear();
+                                      for (var c in _ctrls.values) {
+                                        c.clear();
+                                      }
                                       _removeImage();
                                       _focusNodes['name']?.requestFocus();
                                     },
