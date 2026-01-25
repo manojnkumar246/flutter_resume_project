@@ -6,6 +6,12 @@ function hashPassword(password) {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
 
+// Generate a 6-digit hexadecimal employee code (e.g., "A3F2B1")
+function generateEmpCode() {
+  const bytes = crypto.randomBytes(3); // 3 bytes = 6 hex characters
+  return bytes.toString('hex').toUpperCase();
+}
+
 async function register(req, res) {
   try {
     const payload = req.body;
@@ -14,6 +20,8 @@ async function register(req, res) {
     }
 
     const users = await redisClient.hGetAll("resumes");
+    
+    // Check if email already exists
     for (const u of Object.values(users)) {
       const user = JSON.parse(u);
       if (user.email?.toLowerCase() === payload.email.toLowerCase()) {
@@ -21,17 +29,35 @@ async function register(req, res) {
       }
     }
 
+    // Generate unique 6-digit hex employee code
+    let empCode;
+    let isUnique = false;
+    while (!isUnique) {
+      empCode = generateEmpCode();
+      isUnique = true;
+      // Check if this empCode already exists
+      for (const u of Object.values(users)) {
+        const user = JSON.parse(u);
+        if (user.empCode === empCode) {
+          isUnique = false;
+          break;
+        }
+      }
+    }
+
     const id = uuidv4();
     const doc = {
       id,
+      empCode, // Auto-generated 6-digit hex employee ID
       createdAt: new Date().toISOString(),
       ...payload,
       password: hashPassword(payload.password),
     };
 
     await redisClient.hSet("resumes", id, JSON.stringify(doc));
-    res.status(201).json({ id });
-  } catch {
+    res.status(201).json({ id, empCode });
+  } catch (error) {
+    console.error("Registration error:", error);
     res.status(500).json({ error: "Registration failed." });
   }
 }

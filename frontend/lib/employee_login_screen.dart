@@ -99,10 +99,11 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.black, width: 2),
                         ),
-                        child: const Icon(Icons.person, size: 50, color: Colors.black),
+                        child: const Icon(Icons.person,
+                            size: 50, color: Colors.black),
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Title
                       const Text(
                         'EMPLOYEE PORTAL',
@@ -128,7 +129,8 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
                           prefixIcon: Icon(Icons.email_outlined, size: 20),
                         ),
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Email is required';
+                          if (v == null || v.isEmpty)
+                            return 'Email is required';
                           if (!v.contains('@')) return 'Enter a valid email';
                           return null;
                         },
@@ -144,14 +146,18 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
                           prefixIcon: const Icon(Icons.lock_outline, size: 20),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                               size: 20,
                             ),
-                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                            onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword),
                           ),
                         ),
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Password is required';
+                          if (v == null || v.isEmpty)
+                            return 'Password is required';
                           return null;
                         },
                       ),
@@ -163,7 +169,8 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
                             _errorMessage,
-                            style: const TextStyle(color: Colors.red, fontSize: 13),
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 13),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -196,7 +203,8 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
                               'New Employee?',
-                              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                              style: TextStyle(
+                                  color: Colors.grey[600], fontSize: 12),
                             ),
                           ),
                           const Expanded(child: Divider(color: Colors.black26)),

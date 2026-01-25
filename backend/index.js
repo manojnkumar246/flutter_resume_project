@@ -41,6 +41,10 @@ app.get("/leaves/:id", leaveController.getLeave);
 app.put("/leaves/:id", leaveController.updateLeave);
 app.delete("/leaves/:id", leaveController.deleteLeave);
 
+// Leave Approve/Deny via Email Links (GET requests for easy clicking from email)
+app.get("/leaves/approve/:id", leaveController.approveLeave);
+app.get("/leaves/deny/:id", leaveController.denyLeave);
+
 const PORT = 3000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on 0.0.0.0:${PORT}`);

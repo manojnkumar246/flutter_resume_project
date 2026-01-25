@@ -153,17 +153,60 @@ class _EmployeeRegisterScreenState extends State<EmployeeRegisterScreen> {
       );
 
       if (response.statusCode == 201) {
+        final result = jsonDecode(response.body);
+        final empCode = result['empCode'] ?? 'N/A';
+        
         setState(() {
-          _resultMessage = 'Registration successful! Please login.';
+          _resultMessage = 'Registration successful!\nYour Employee ID: $empCode\nPlease login.';
           _isSuccess = true;
         });
 
-        // Wait a moment then navigate to login
-        await Future.delayed(const Duration(seconds: 2));
+        // Show dialog with employee ID
         if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const EmployeeLoginScreen()),
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Text('Registration Successful! ✅'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Your account has been created.'),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Column(
+                      children: [
+                        const Text('Your Employee ID:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text(empCode, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Please save this ID. It cannot be changed.', 
+                    style: TextStyle(color: Colors.red, fontSize: 12)),
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const EmployeeLoginScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                  child: const Text('Go to Login', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
           );
         }
       } else {
